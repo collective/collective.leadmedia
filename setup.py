@@ -6,8 +6,7 @@ version = '0.1'
 setup(name='collective.leadmedia',
       version=version,
       description="Adds a slideshow to any dexterity folderish type.",
-      long_description=open("README.txt").read() + "\n" +
-                       open("docs/HISTORY.txt").read(),
+      long_description=open("README.rst").read(),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
@@ -17,8 +16,8 @@ setup(name='collective.leadmedia',
       keywords='Plone',
       author='Andre Goncalves',
       author_email='andre@intk.com',
-      url='https://github.com/intk/collective.leadmedia',
-      download_url='https://github.com/intk/collective.leadmedia/tarball/0.0.1',
+      url='https://github.com/collective/collective.leadmedia',
+      download_url='https://github.com/collective/collective.leadmedia/tarball/0.1',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['collective'],
