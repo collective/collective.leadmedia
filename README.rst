@@ -12,7 +12,7 @@ Features
 
 |eventview|
 
-.. |eventview| image:: http://dev.intk.com/lead_media_view.png
+.. |eventview| image:: http://dev.intk.com/lead_media_screen_view.png
 
 How it works
 ============
