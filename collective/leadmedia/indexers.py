@@ -42,7 +42,7 @@ def folder_hasMedia(object, **kw):
 def folder_leadMedia(object, **kw):
     lead = ICanContainMedia(object).getLeadMedia()
     if lead is not None:
-        if hasattr(lead, 'getURL'):
+        if hasattr(lead, 'UID'):
             return lead.UID()
         else:
             return lead.UID()
