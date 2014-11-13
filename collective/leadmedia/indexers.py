@@ -11,11 +11,9 @@ def hasMedia(object, **kw):
 
 @indexer(IDexterityContainer)
 def leadMedia(object, **kw):
-    #print "set lead media"
     lead = ICanContainMedia(object).getLeadMedia()
     if lead is not None:
         if hasattr(lead, 'UID'):
-            #print lead.UID()
             return lead.UID()
         else:
             return lead.UID()

@@ -7,8 +7,6 @@ setup(name='collective.leadmedia',
       version=version,
       description="Adds a slideshow to any dexterity folderish type.",
       long_description=open("README.rst").read(),
-      # Get more strings from
-      # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
         "Framework :: Plone",
         "Programming Language :: Python",
@@ -26,7 +24,9 @@ setup(name='collective.leadmedia',
       install_requires=[
           'setuptools',
           'collective.folderishtypes==2.0b2',
-          'collective.slickslideshow==0.0.6'
+          'collective.slickslideshow==0.0.6',
+          'collective.FolderContentsPortletManager',
+          'collective.quickupload',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

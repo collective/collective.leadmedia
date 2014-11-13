@@ -14,7 +14,6 @@ class MediaHandling(object):
         """
         Get media 
         """
-        print "try to get media"
         item = self.context
         result = []
 
@@ -43,7 +42,6 @@ class MediaHandling(object):
 
         # No slideshow
         brains = item.objectIds()
-        print "go to brains"
 
         for brain in brains:
             brain_obj = item[brain]
@@ -53,7 +51,6 @@ class MediaHandling(object):
 
             # if folderish item inside item folder
             elif brain_obj.meta_type == "Dexterity Container" and brain_obj.portal_type != "Folder":
-                print "has dexterity container"
                 result.append(ICanContainMedia(brain_obj).getLeadMedia())
                 return result
 
@@ -63,11 +60,8 @@ class MediaHandling(object):
         """
         Check if item has media 
         """
-
-        print "has media"
         
         media = self.getMedia()
-        print "got media"
 
         if len(media) > 0:
             return True

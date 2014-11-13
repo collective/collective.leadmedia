@@ -1,14 +1,13 @@
 # Handling Events
 from zope.annotation.interfaces import IAnnotations
-from plone.multilingual.interfaces import ILanguage
+from Products.CMFCore.utils import getToolByName
 
 def reindexMedia(object, event):
     """
         Reindexes leadmedia catalog indexes
     """
 
-    if object.id != "whatson" and object.id != 'slideshow':
-        #print "Reindexing %s"%object.id
+    if object.id != 'slideshow':
         object.reindexObject()
         object.reindexObject(idxs=["hasMedia"])
         object.reindexObject(idxs=["leadMedia"])
@@ -23,10 +22,12 @@ def reindexMedia(object, event):
                 reindexMedia(object.getParentNode(), event)
 
 def objectAddedEvent(object, event):
-    
-    newparent_lang = ILanguage(event.newParent).get_language()
+    pt = getToolByName(object, "portal_types")
 
-    if object.portal_type != "Folder":
+    objectType = pt.getTypeInfo(object)
+    allowType = objectType.allowType("Folder")
+
+    if object.portal_type != "Folder" and allowType:
         if 'slideshow' not in object.objectIds():
             print "Add slideshow folder."
 
@@ -37,8 +38,6 @@ def objectAddedEvent(object, event):
             )
 
             folder = object['slideshow']
-
-            ILanguage(folder).set_language(newparent_lang)
 
             try:
               folder.portal_workflow.doActionFor(folder, "publish", comment="Slideshow content automatically published")
