@@ -20,7 +20,7 @@
     name="slideshow"
     for=".slideshow.ISlideshow"
     class=".viewlets.SlideshowViewlet"
-    manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+    manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
     template="templates/slideshow.pt"
     permission="zope2.View"
     />

@@ -17,28 +17,39 @@ class MediaHandling(object):
         item = self.context
         result = []
 
-        #print "item to get media"
-        #print item
+        if item.portal_type == "Collection":
+            brains = item.queryCatalog()
+            for brain in brains:
+                if hasattr(brain, 'meta_type'):
+                    if brain.meta_type == "Dexterity Container":
+                        item = brain.getObject()
+                        result.append(ICanContainMedia(item).getLeadMedia())
+                        return result
+        else:
+            if 'slideshow' in item.objectIds():
+                #print "slideshow in ids"
+                slideshow = item['slideshow']
+                #print str(slideshow.objectIds())
+                for content in slideshow.objectIds():
+                    content_obj = slideshow[content]
 
+                    if content_obj.portal_type == "Image":
+                        result.append(content_obj)
+                        return result
 
-        if 'slideshow' in item.objectIds():
-            #print "slideshow in ids"
-            slideshow = item['slideshow']
-            #print str(slideshow.objectIds())
-            for content in slideshow.objectIds():
-                content_obj = slideshow[content]
-                if content_obj.portal_type == "Image":
-                    result.append(content_obj)
-                    return result
-
-                # If folderish content inside slideshow folder
-                elif hasattr(content, 'meta_type'):
-                    if content.meta_type == "Dexterity Container" and content.portal_type != "Folder":
-                        if content.hasMedia:
-                            content_object = content.getObject()
-                            result.append(ICanContainMedia(content_object).getLeadMedia())
+                    # If folderish content inside slideshow folder
+                    elif hasattr(content_obj, 'meta_type'):
+                        if content_obj.meta_type == "Dexterity Container" and content_obj.portal_type != "Folder":
+                            if hasattr(content_obj, 'hasMedia'):
+                                if content_obj.hasMedia:
+                                    result.append(ICanContainMedia(content_obj).getLeadMedia())
+                                    return result
+                        
+                        elif content_obj.meta_type == "Dexterity Container" and content_obj.portal_type == "Folder":
+                            result.append(ICanContainMedia(content_obj).getLeadMedia())
                             return result
-            return result
+
+                return result
 
         # No slideshow
         brains = item.objectIds()
@@ -50,9 +61,14 @@ class MediaHandling(object):
                 return result
 
             # if folderish item inside item folder
+            elif brain_obj.meta_type == "Dexterity Container" and brain_obj.portal_type == "Folder":
+                result.append(ICanContainMedia(brain_obj).getLeadMedia())
+                return result
+
             elif brain_obj.meta_type == "Dexterity Container" and brain_obj.portal_type != "Folder":
                 result.append(ICanContainMedia(brain_obj).getLeadMedia())
                 return result
+
 
         return result
 

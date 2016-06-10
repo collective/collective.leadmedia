@@ -23,7 +23,7 @@ setup(name='collective.leadmedia',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'collective.folderishtypes==2.0b2',
+          'collective.folderishtypes==2.0.dev0',
           'collective.slickslideshow==0.0.6',
           'collective.FolderContentsPortletManager',
           'collective.quickupload',

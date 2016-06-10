@@ -8,10 +8,10 @@
     i18n_domain="collective.leadmedia">
 
   <five:registerPackage package="." initialize=".initialize" />
-
-
+  
   <include package=".browser" />
   <include package=".behaviors" />
+  <i18n:registerTranslations directory="locales" />
   
   <genericsetup:registerProfile
       name="default"
@@ -70,12 +70,33 @@
         zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler="collective.leadmedia.events.reindexMedia" />
 
+  <subscriber
+        for="plone.dexterity.interfaces.IDexterityContainer
+        zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".events.objectAddedEvent" />
+        
   <!-- if image cropping present -->
+  <subscriber
+      for="plone.app.contenttypes.interfaces.IImage
+      zope.lifecycleevent.interfaces.IObjectModifiedEvent
+      "
+      handler=".utils.imageObjectCreated"
+      zcml:condition="installed plone.app.imagecropping"/>
+
+  <!-- 
+      Workflow change 
+    -->
+  
+  <!--<subscriber
+        for="plone.dexterity.interfaces.IDexterityContainer
+        Products.CMFCore.interfaces.IActionSucceededEvent"
+        handler=".utils.workflowStateChanged"/>-->
+
   <subscriber
       for="plone.app.contenttypes.interfaces.IImage
       zope.lifecycleevent.interfaces.IObjectAddedEvent
       "
-      handler=".utils.imageObjectCreated"
+      handler=".utils.imageObjectAdded"
       zcml:condition="installed plone.app.imagecropping"/>
 
   <adapter name="hasMedia" factory=".indexers.hasMedia" />
@@ -85,9 +106,6 @@
   <adapter name="hasMedia" factory=".indexers.collection_hasMedia" />
   <adapter name="leadMedia" factory=".indexers.collection_leadMedia" />
 
-  <subscriber
-        for="plone.dexterity.interfaces.IDexterityContainer
-        zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".events.objectAddedEvent" />
+  
   
 </configure>

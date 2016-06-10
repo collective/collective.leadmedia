@@ -49,5 +49,13 @@ i18n_domain="collective.leadmedia">
             template="viewlets_templates/leadmedia.pt"
             permission="zope2.View"
     />
+    <browser:viewlet
+            name="leadmedia"
+            for="plone.app.contenttypes.interfaces.IEvent"
+            class=".viewlets.LeadMediaViewlet"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+            template="viewlets_templates/leadmedia.pt"
+            permission="zope2.View"
+    />
 
 </configure>

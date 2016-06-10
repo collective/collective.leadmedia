@@ -1,0 +1,21 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: collective.leadmedia\n"
+"POT-Creation-Date: 2015-01-01 15:28+0000\n"
+"PO-Revision-Date: 2015-01-01 15:40+0000’\n"
+"Last-Translator: INTK <info@intk.com>\n"
+"Language-Team: Dutch <info@intk.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Code: nl\n"
+"Language-Name: Dutch\n"
+"Preferred-Encodings: utf-8\n"
+"Domain: collective.leadmedia\n"
+
+#: ../behaviors/templates/slideshow.pt:30
+msgid "Share"
+msgstr "Deze pagina delen"
+
+

@@ -28,6 +28,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 from AccessControl import getSecurityManager
 import json
+from collective.leadmedia.interfaces import ICanContainMedia
 
 try:
     from collective.flowplayer.interfaces import IFlowPlayable
@@ -79,9 +80,6 @@ class getSlideshowItem(BrowserView):
         #python to json encoding
         jsonStr = json.dumps({"title": title, "description":description, "type": type, "media": {"url": media, "type": mediaType}})
         
-        #Manual encoding 
-        #jsonStr = '{"title": "'+title+'", "description": "'+description+'", "type": "'+type+'", "media": {"url": "'+media+'", "type//" : "'+mediaType+'"}}'
-        
         if callback is not None:
             return callback +'(' + jsonStr + ')'
         else:
@@ -103,7 +101,8 @@ class getSlideshowItem(BrowserView):
             return item.absolute_url() + '/@@images/image/large'
         
         if (item.portal_type == 'Link') and (item.remoteUrl.find("youtube.com") > -1 or item.remoteUrl.find("vimeo.com") > -1):
-            return item.remoteUrl
+            print item
+            return ""
         
         catalog = getToolByName(self.context, 'portal_catalog')
         plone_utils = getToolByName(self.context, 'plone_utils')
@@ -165,11 +164,19 @@ class slideshowListingView(BrowserView):
         else:
             recursive = "false"
         
+        is_book  = False
+        if hasattr(self.request, 'book_view'):
+            is_book = True
+
         recursiveMode = False
         
         if recursive.find("true") != -1:
             recursiveMode = True
         #---
+
+        recursiveMode = False
+        if is_book:
+            recursiveMode = True
         
         callback = hasattr(self.request, 'callback') and 'json' + self.request['callback'] or None
         jsonStr = ""
@@ -184,7 +191,12 @@ class slideshowListingView(BrowserView):
             if not recursiveMode:
                 results = catalog.searchResults(path = { 'query' : path, 'depth' : 1 }, sort_on = 'getObjPositionInParent')
             else:
-                results = catalog.searchResults(path = { 'query' : path}, sort_on = 'getObjPositionInParent')
+                rec_sort_on = 'getObjPositionInParent'
+                if is_book:
+                    rec_sort_on = 'sortable_title'
+
+                results = catalog.searchResults(path = { 'query' : path}, sort_on = rec_sort_on)
+
         elif item.portal_type == "Topic":
             if item.limitNumber:
                 results = catalog.searchResults(item.buildQuery())[:item.itemCount]
@@ -192,10 +204,7 @@ class slideshowListingView(BrowserView):
                 results = catalog.searchResults(item.buildQuery())
         elif item.portal_type == "Collection":
             results = item.queryCatalog()
-                
-        #TODO: This next part was made for porseleinplaats website to work with the category navigator and Object type
-        #it is a hack and should be revised. the whole query string should be parsed into the search.
-        #also found a problem where User objects get a wrong Image media url.
+
         elif item.portal_type == "Category Navigator" and (hasattr(self.request, 'Subject') or hasattr(self.request, 'Creator')):
             if hasattr(self.request, 'Subject'):
                 results = catalog.searchResults(Subject = self.request['Subject'])
@@ -204,26 +213,63 @@ class slideshowListingView(BrowserView):
         else:
             results = []
         
-        
         resultArray = []
         
+        plone_instance = "/NewTeylers"
+
         #Python to JSON encoding
         if not recursiveMode:
             for res in results:
-                if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context:
-                    resultArray.append({ "url": res.getURL(), "UID": res["UID"] })
+                item_object = res.getObject()
+                link_lead_media = ""
+                if item_object.portal_type == "Link":
+                    obj = ICanContainMedia(item_object)
+                    lead_image = obj.getLeadMedia()
+                    if lead_image != None:
+                        link_lead_media = lead_image.absolute_url() + "/@@images/image/large"
+                if self.getMediaURL(item_object) != "" and item_object != self.context:
+                    physical_path = '/'.join(item_object.getPhysicalPath())
+                    relative_path = physical_path.replace(plone_instance, "")
+                    resultArray.append({ "url": res.getURL(), "UID": res["UID"], "relative_path": relative_path, "media": {"type":self.getMediaType(item_object), "url": self.getMediaURL(item_object)}, "description": res.Description, "link_lead_media": link_lead_media })
         else:
             for res in results:
-                if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context and res.portal_type != 'Folder':
-                    resultArray.append({"url": res.getURL(), "UID": res["UID"]})
+                item_object = res.getObject()
+                if self.getMediaURL(item_object) != "" and item_object != self.context and res.portal_type != 'Folder':
+                    physical_path = '/'.join(item_object.getPhysicalPath())
+                    relative_path = physical_path.replace(plone_instance, "")
+                    resultArray.append({"url": res.getURL(), "UID": res["UID"], "relative_path": relative_path, "media": {"type":self.getMediaType(item_object), "url": self.getMediaURL(item_object)}, "description": res.Description })
         
-        jsonStr = json.dumps(resultArray[:100])
+        jsonStr = json.dumps(resultArray[:])
         
         if callback is not None:
             return callback +'(' + jsonStr + ')'
         else:
             return jsonStr 
+
+    def getMediaType(self, obj):
+        """ Finds and returns the type of lead media
+        """ 
+        item = obj
         
+        try:
+            if(self.isVideo(item)):
+                return "Video"
+            elif (item.portal_type == 'Link' or item.portal_type == "MediaLink") and item.remoteUrl.find("youtube.com") > -1:
+                return "Youtube"
+            elif (item.portal_type == 'Link' or item.portal_type == "MediaLink") and item.remoteUrl.find("vimeo.com") > -1:
+                return "Vimeo"
+            else:
+                return "Image"
+        except:
+            if(self.isVideo(item)):
+                return "Video"
+            elif (item.portal_type == 'Link' or item.portal_type == "MediaLink") and item.getObject().remoteUrl.find("youtube.com") > -1:
+                return "Youtube"
+            elif (item.portal_type == 'Link' or item.portal_type == "MediaLink") and item.getObject().remoteUrl.find("vimeo.com") > -1:
+                return "Vimeo"
+            else:
+                return "Image"
+        return ""
         
     def getMediaURL(self, item):
         """ finds and returns relevant leading media for the given item
