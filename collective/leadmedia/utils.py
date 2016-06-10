@@ -10,7 +10,7 @@ def addCropToTranslation(original, translated):
     # Add crops if original has crops
     if hasCrops(original):
         fieldname = 'image'
-        scale = 'preview'
+        scale = 'mini'
         view = original.restrictedTraverse('@@crop-image')
 
         box = view._storage['{0:s}_{1:s}'.format(fieldname, scale)]
@@ -28,10 +28,10 @@ def hasCrops(ob):
     #
     annotations = IAnnotations(ob).get(PAI_STORAGE_KEY)
     if annotations != None:
-        if 'image_preview' not in annotations.keys():
+        if 'image_mini' not in annotations.keys():
             return False
         else:
-            return True
+            return False
     else:
         return False
 
@@ -43,6 +43,20 @@ def autoCropImage(ob):
         #
         # Make crop centered
         #
+
+        # 3:2 aspect ratio
+        aspect_ratio = 1.5
+
+        width = min(w, h*aspect_ratio)
+        height = min(w/aspect_ratio, h)
+        left = (w - width)/2
+        top = (h - height)/2
+        box = (int(left),int(top),int(left+width),int(top+height))
+
+        # Square
+
+        view._crop(fieldname='image', scale="mini", box=box)
+        
         if w > h:
             delta = w - h
             left = int(delta/2)
@@ -59,6 +73,7 @@ def autoCropImage(ob):
         box = (left, upper, right, lower)
 
         view._crop(fieldname='image', scale="preview", box=box)
+
         ob.reindexObject()
 
 def imageObjectCreated(ob, event):
