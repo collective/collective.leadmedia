@@ -50,4 +50,12 @@ i18n_domain="collective.leadmedia">
             permission="zope2.View"
     />
 
+    <browser:viewlet
+        name="plone.htmlhead.socialtags"
+        manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
+        class=".viewlets.SocialTagsViewletCustom"
+        permission="zope2.View"
+        layer="..interfaces.ILeadMediaSpecific"
+        />
+
 </configure>

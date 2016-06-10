@@ -12,7 +12,7 @@
     description="Adds slideshow"
     provides=".slideshow.ISlideshow"
     factory=".slideshow.Slideshow"
-    for="plone.dexterity.interfaces.IDexterityContainer"
+    for="*"
     marker=".slideshow.ISlideshow"
     />
 
@@ -34,7 +34,7 @@
     />
 
     <browser:page
-         for="plone.app.contenttypes.interfaces.IFolder"
+         for="*"
          name="slideshowListing"
          class=".slideshow.slideshowListingView"
          template="templates/slideshow_listing.pt"

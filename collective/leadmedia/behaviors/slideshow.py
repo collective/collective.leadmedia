@@ -5,7 +5,7 @@ from zope import schema
 from plone.supermodel import model
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.autoform.interfaces import IFormFieldProvider
-
+from plone.app.uuid.utils import uuidToCatalogBrain, uuidToObject
 from plone.namedfile import field as namedfile
 
 from plone.app.contenttypes import _
@@ -170,16 +170,22 @@ class slideshowListingView(BrowserView):
         if recursive.find("true") != -1:
             recursiveMode = True
         #---
+
+
         
         callback = hasattr(self.request, 'callback') and 'json' + self.request['callback'] or None
         jsonStr = ""
         
-        item = self.context 
-        
+        item = self.context
+        item_type = item.portal_type
+
+        if item.portal_type in ['Folder', 'Collection']: 
+            recursiveMode = True
+
         catalog = getToolByName(self.context, 'portal_catalog')
         plone_utils = getToolByName(self.context, 'plone_utils')
         path = '/'.join(item.getPhysicalPath())
-        
+        results = []
         if item.portal_type == "Folder" or (item.restrictedTraverse('@@plone').isStructuralFolder()  and (item.portal_type != "Topic" and item.portal_type != "Collection") and item.portal_type != "Category Navigator"):
             if not recursiveMode:
                 results = catalog.searchResults(path = { 'query' : path, 'depth' : 1 }, sort_on = 'getObjPositionInParent')
@@ -191,7 +197,7 @@ class slideshowListingView(BrowserView):
             else:
                 results = catalog.searchResults(item.buildQuery())
         elif item.portal_type == "Collection":
-            results = item.queryCatalog()
+            results = item.queryCatalog(b_size=1)
                 
         #TODO: This next part was made for porseleinplaats website to work with the category navigator and Object type
         #it is a hack and should be revised. the whole query string should be parsed into the search.
@@ -210,12 +216,26 @@ class slideshowListingView(BrowserView):
         #Python to JSON encoding
         if not recursiveMode:
             for res in results:
-                if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context:
-                    resultArray.append({ "url": res.getURL(), "UID": res["UID"] })
+                if item_type in ['Collection', 'Folder'] and item.id != 'slideshow':
+                    leadMedia = res.leadMedia
+                    if leadMedia:
+                        img = uuidToCatalogBrain(leadMedia)
+                        if img:
+                            resultArray.append({"url": img.getURL(), "UID": img.UID})
+                else:
+                    if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context:
+                        resultArray.append({ "url": res.getURL(), "UID": res["UID"] })
         else:
             for res in results:
-                if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context and res.portal_type != 'Folder':
-                    resultArray.append({"url": res.getURL(), "UID": res["UID"]})
+                if item_type in ['Collection', 'Folder'] and item.id != 'slideshow':
+                    leadMedia = res.leadMedia
+                    if leadMedia:
+                        img = uuidToCatalogBrain(leadMedia)
+                        if img:
+                            resultArray.append({"url": img.getURL(), "UID": img.UID})
+                else:
+                    if self.getMediaURL(res.getObject()) != "" and res.getObject() != self.context and res.portal_type != 'Folder':
+                        resultArray.append({"url": res.getURL(), "UID": res["UID"]})
         
         jsonStr = json.dumps(resultArray[:100])
         

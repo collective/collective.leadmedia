@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from plone.app.layout.viewlets import ViewletBase
+from .slideshow import ISlideshow
 
 class SlideshowViewlet(ViewletBase):
     """ A simple viewlet which renders slideshow """
@@ -8,8 +9,17 @@ class SlideshowViewlet(ViewletBase):
         """
         Creates a slideshow with the media from parent
         """
+        try:
+            inContext = 'slideshow' in parent
+        except:
+            inContext = False
+            parent = self.context
+            pass
 
-        parentURL = parent.absolute_url()
+        if inContext:
+            parentURL = parent['slideshow'].absolute_url()
+        else:
+            parentURL = parent.absolute_url()
         
         structure = """
             <div class="slick-slideshow" data-audio='' data-audio-duration=''>
@@ -24,6 +34,9 @@ class SlideshowViewlet(ViewletBase):
         if 'folder_contents' in request:
             return inContext
         try:
+            if ISlideshow.providedBy(parent):
+                return True
+
             inContext = 'slideshow' in parent
             return inContext
         except:
