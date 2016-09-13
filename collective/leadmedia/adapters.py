@@ -18,14 +18,17 @@ class MediaHandling(object):
         result = []
 
         if item.portal_type == "Collection":
-            brains = item.queryCatalog()
-            for brain in brains:
-                print brain.meta_type
-                if hasattr(brain, 'meta_type'):
-                    if brain.meta_type == "Dexterity Container":
-                        item = brain.getObject()
-                        result.append(ICanContainMedia(item).getLeadMedia())
-                        return result
+            try:
+                brains = item.queryCatalog()
+                for brain in brains:
+                    print brain.meta_type
+                    if hasattr(brain, 'meta_type'):
+                        if brain.meta_type == "Dexterity Container":
+                            item = brain.getObject()
+                            result.append(ICanContainMedia(item).getLeadMedia())
+                            return result
+            except:
+                return result
         else:
             if 'slideshow' in item.objectIds():
                 #print "slideshow in ids"
