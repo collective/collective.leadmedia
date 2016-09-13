@@ -20,6 +20,7 @@ class MediaHandling(object):
         if item.portal_type == "Collection":
             brains = item.queryCatalog()
             for brain in brains:
+                print brain.meta_type
                 if hasattr(brain, 'meta_type'):
                     if brain.meta_type == "Dexterity Container":
                         item = brain.getObject()
@@ -57,6 +58,7 @@ class MediaHandling(object):
 
         for brain in brains:
             brain_obj = item[brain]
+
             if brain_obj.portal_type == "Image":
                 result.append(brain_obj)
                 return result
@@ -70,6 +72,9 @@ class MediaHandling(object):
                 result.append(ICanContainMedia(brain_obj).getLeadMedia())
                 return result
 
+            elif brain_obj.portal_type == "Collection":
+                result.append(ICanContainMedia(brain_obj).getLeadMedia())
+                return result
 
         return result
 
