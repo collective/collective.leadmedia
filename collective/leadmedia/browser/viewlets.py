@@ -86,7 +86,7 @@ class SocialTagsViewletCustom(TitleViewlet):
         context_uid = self.context.UID()
         has_media = False
         brain = uuidToCatalogBrain(context_uid)
-        if brain.leadMedia:
+        if getattr(brain, 'leadMedia', None):
             has_media = True
             media = uuidToCatalogBrain(brain.leadMedia)
 
