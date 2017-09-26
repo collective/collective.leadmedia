@@ -27,21 +27,22 @@ def objectAddedEvent(object, event):
     objectType = pt.getTypeInfo(object)
     allowType = objectType.allowType("Folder")
 
-    if object.portal_type != "Folder" and allowType:
-        if 'slideshow' not in object.objectIds():
-            print "Add slideshow folder."
+    if getattr(object, 'language', None) != "en":
+        if object.portal_type != "Folder" and allowType:
+            if 'slideshow' not in object.objectIds():
+                #print "Add slideshow folder."
 
-            object.invokeFactory(
-                type_name="Folder",
-                id=u'slideshow',
-                title='slideshow',
-            )
+                object.invokeFactory(
+                    type_name="Folder",
+                    id=u'slideshow',
+                    title='slideshow',
+                )
 
-            folder = object['slideshow']
+                folder = object['slideshow']
 
-            try:
-              folder.portal_workflow.doActionFor(folder, "publish", comment="Slideshow content automatically published")
-              object.reindexObject()
-            except:
-              pass
-    
+                try:
+                  folder.portal_workflow.doActionFor(folder, "publish", comment="Slideshow content automatically published")
+                  object.reindexObject()
+                except:
+                  pass
+        

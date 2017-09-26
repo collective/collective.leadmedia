@@ -1,12 +1,23 @@
-
-<!-- Slick Slideshow -->
 <div class="slideshow" id="slickslideshow"
-  i18n:domain="collective.leadmedia" tal:condition="python:view.slideshowInContext(context, request.URL)">
+  i18n:domain="collective.leadmedia" tal:condition="python: view.slideshowInContext(context, request.URL)">
   	<div class="slideshowWrapper">
+      <div class="on-display-wrapper" tal:condition="python: view.checkObjectOnDisplay()" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
+        <div i18n:translate="object_on_display" class="label_inner">Nu te zien</div>
+      </div>
   		<tal:checkslideshow>
-    		<tal:slideshow replace="structure python:view.slideshow(context)" tal:condition="python:view.slideshowInContext(context, request.URL)">
+    		<tal:slideshow replace="structure python:view.slideshow(context)">
    			</tal:slideshow>     
   		</tal:checkslideshow>
+  		<div id="slideshow-controls" class="container">
+            <div class="col-lg-9 col-md-9 col-sm-9 col-sx-12 count-description">
+                    <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div">
+                    <a type="button" class="btn btn-default info-btn"><i class="fa fa-info-circle"></i></a>
+                    <a type="button" class="btn btn-default expand-btn"><i class="fa fa-compress"></i></a>
+            </div>
+        </div>
 	</div>
 </div>
-<!-- -->
+
+

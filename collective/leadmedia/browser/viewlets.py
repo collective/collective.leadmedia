@@ -76,9 +76,13 @@ class SocialTagsViewletCustom(TitleViewlet):
             # this should not happen but we can be careful
             return
 
+        social_description = item.description
+        if not item.description:
+            social_description = self.page_title
+
         self.tags.extend([
-            dict(name="twitter:description", content=item.description),
-            dict(property="og:description", content=item.description),
+            dict(name="twitter:description", content=social_description),
+            dict(property="og:description", content=social_description),
             dict(name="twitter:url", content=item.link),
             dict(property="og:url", content=item.link),
         ])
@@ -111,18 +115,19 @@ class SocialTagsViewletCustom(TitleViewlet):
         elif has_media:
             if media != None:
                 file_url = media.getURL()
-                image = media.getObject()
+                file_type = "image/jpeg"
+                """image = media.getObject()
                 image_file = getattr(image, 'image', None)
                 if image_file:
                     file_type = getattr(image, 'contentType', None)
                     if not file_type:
                         file_type = "image/jpeg"
-                
-                    self.tags.extend([
-                        dict(name="twitter:image", content=file_url),
-                        dict(property="og:image", content=file_url),
-                        dict(property="og:image:type", content=file_type)
-                    ])
+                """
+                self.tags.extend([
+                    dict(name="twitter:image", content=file_url),
+                    dict(property="og:image", content=file_url),
+                    dict(property="og:image:type", content=file_type)
+                ])
 
 
 

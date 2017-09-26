@@ -3,7 +3,6 @@ from plone.app.layout.viewlets import ViewletBase
 from .slideshow import ISlideshow
 from plone.app.uuid.utils import uuidToCatalogBrain
 from AccessControl import getSecurityManager
-from Products.CMFCore.permissions import ModifyPortalContent
 
 class SlideshowViewlet(ViewletBase):
     """ A simple viewlet which renders slideshow """
@@ -12,16 +11,6 @@ class SlideshowViewlet(ViewletBase):
         if sm.checkPermission(ModifyPortalContent, self.context):
             return True
         return False
-
-    def checkObjectOnDisplay(self):
-        if self.context.portal_type == "Object":
-            try:
-                brain = uuidToCatalogBrain(self.context.UID())
-                return brain.object_on_display
-            except:
-                return False
-        else:
-            return False
 
     def slideshow(self, parent):
         """
@@ -32,7 +21,8 @@ class SlideshowViewlet(ViewletBase):
         context = self.context
         brain = uuidToCatalogBrain(uuid)
         lead_media = getattr(brain, 'leadMedia', None)
-        
+
+
         try:
             inContext = 'slideshow' in parent
         except:
@@ -55,9 +45,9 @@ class SlideshowViewlet(ViewletBase):
             lead_image = uuidToCatalogBrain(lead_media)
             obj_type = getattr(parent, 'portal_type', None)
             if obj_type == "Object":
-                if self.checkUserPermission():
+                if checkUserPermission():
                     structure = """
-                        <div class="slick-slideshow regular fullscreen">
+                        <div class="slick-slideshow fullscreen">
                             <a href="%s?recursive=true" id='slide-get-content'></a>    
                             <script>
                                 $('body').addClass('not-empty-slideshow');
@@ -73,7 +63,7 @@ class SlideshowViewlet(ViewletBase):
                             </script>
                         </div>
                         """%parentURL
-
+                        
             elif obj_type == "Collection" or obj_type == "Folder":
                 slideshow_type = "collection"
                 if not lead_image:

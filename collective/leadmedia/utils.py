@@ -8,7 +8,7 @@ from plone.app.imagecropping import PAI_STORAGE_KEY
 # AUTO CROPPING
 def addCropToTranslation(original, translated):
     # Add crops if original has crops
-    if hasCrops(original):
+    if hasCropsTranslation(original):
         fieldname = 'image'
         scale = 'mini'
         view = original.restrictedTraverse('@@crop-image')
@@ -22,7 +22,21 @@ def addCropToTranslation(original, translated):
         # Re-index current crops
         view._crop(fieldname, scale, box)
 
+def hasCropsTranslation(obj):
+    #
+    # Check if object has crops defined
+    #
+    annotations = IAnnotations(obj).get(PAI_STORAGE_KEY)
+    if annotations != None:
+        if 'image_mini' not in annotations.keys():
+            return True
+        else:
+            return False
+    else:
+        return False
+        
 def hasCrops(ob):
+    return False
     #
     # Check if object has crops defined
     #
@@ -77,7 +91,7 @@ def autoCropImage(ob):
         ob.reindexObject()
 
 def imageObjectCreated(ob, event):
-    print "Crop - Image object created!!"
+    #print "Crop - Image object created!!"
     if ob.portal_type == "Image":
         if ob.image != None:
             autoCropImage(ob)

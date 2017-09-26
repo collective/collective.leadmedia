@@ -3,6 +3,7 @@
 from zope.interface import implements
 from collective.leadmedia.interfaces import ICanContainMedia
 from Products.CMFCore.utils import getToolByName
+from plone.app.uuid.utils import uuidToCatalogBrain
 
 class MediaHandling(object):
     implements(ICanContainMedia)
@@ -21,7 +22,6 @@ class MediaHandling(object):
             try:
                 brains = item.queryCatalog()
                 for brain in brains:
-                    print brain.meta_type
                     if hasattr(brain, 'meta_type'):
                         if brain.meta_type == "Dexterity Container":
                             item = brain.getObject()
@@ -33,6 +33,12 @@ class MediaHandling(object):
             if 'slideshow' in item.objectIds():
                 #print "slideshow in ids"
                 slideshow = item['slideshow']
+                try:
+                    if uuidToCatalogBrain(slideshow.UID()).review_state != "published":
+                        return []
+                except:
+                    return []
+
                 #print str(slideshow.objectIds())
                 for content in slideshow.objectIds():
                     content_obj = slideshow[content]
