@@ -45,4 +45,23 @@ def objectAddedEvent(object, event):
                   object.reindexObject()
                 except:
                   pass
+
+
+            if object.portal_type in ['Event']:
+                if 'archive' not in object.objectIds():
+                    object.invokeFactory(
+                        type_name="Folder",
+                        id=u'archive',
+                        title='archive',
+                    )
+
+                    folder = object['archive']
+
+                    try:
+                      folder.portal_workflow.doActionFor(folder, "publish", comment="Archive folder content automatically published")
+                      object.reindexObject()
+                    except:
+                      pass
+
+
         

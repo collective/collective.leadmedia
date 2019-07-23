@@ -4,6 +4,7 @@ from zope.interface import implements
 from collective.leadmedia.interfaces import ICanContainMedia
 from Products.CMFCore.utils import getToolByName
 from plone.app.uuid.utils import uuidToCatalogBrain
+from plone.app.contenttypes.behaviors.collection import ICollection
 
 class MediaHandling(object):
     implements(ICanContainMedia)
@@ -18,17 +19,23 @@ class MediaHandling(object):
         item = self.context
         result = []
 
-        if item.portal_type == "Collection":
+        if item.portal_type in ["Collection", "Person"]:
+
             try:
-                brains = item.queryCatalog()
+                if item.portal_type == "Collection":
+                    brains = item.queryCatalog()
+                else:
+                    brains = ICollection(item).results(limit=1, batch=False)
+            
                 for brain in brains:
                     if hasattr(brain, 'meta_type'):
                         if brain.meta_type == "Dexterity Container":
                             item = brain.getObject()
                             result.append(ICanContainMedia(item).getLeadMedia())
                             return result
-            except:
                 return result
+            except:
+                return []
         else:
             if 'slideshow' in item.objectIds():
                 #print "slideshow in ids"
@@ -40,6 +47,35 @@ class MediaHandling(object):
                     return []
 
                 #print str(slideshow.objectIds())
+                for content in slideshow.objectIds():
+                    content_obj = slideshow[content]
+
+                    if content_obj.portal_type == "Image":
+                        if content_obj.image != None:
+                            result.append(content_obj)
+                            return result
+
+                    # If folderish content inside slideshow folder
+                    elif hasattr(content_obj, 'meta_type'):
+                        if content_obj.meta_type == "Dexterity Container" and content_obj.portal_type != "Folder":
+                            if hasattr(content_obj, 'hasMedia'):
+                                if content_obj.hasMedia:
+                                    result.append(ICanContainMedia(content_obj).getLeadMedia())
+                                    return result
+                        
+                        elif content_obj.meta_type == "Dexterity Container" and content_obj.portal_type == "Folder":
+                            result.append(ICanContainMedia(content_obj).getLeadMedia())
+                            return result
+
+            if 'archive' in item.objectIds():
+                #print "slideshow in ids"
+                slideshow = item['archive']
+                try:
+                    if uuidToCatalogBrain(slideshow.UID()).review_state != "published":
+                        return []
+                except:
+                    return []
+
                 for content in slideshow.objectIds():
                     content_obj = slideshow[content]
 
