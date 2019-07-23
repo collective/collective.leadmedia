@@ -76,9 +76,19 @@ class SocialTagsViewletCustom(TitleViewlet):
             # this should not happen but we can be careful
             return
 
+<<<<<<< HEAD
         self.tags.extend([
             dict(name="twitter:description", content=item.description),
             dict(property="og:description", content=item.description),
+=======
+        social_description = item.description
+        if not item.description:
+            social_description = self.page_title
+
+        self.tags.extend([
+            dict(name="twitter:description", content=social_description),
+            dict(property="og:description", content=social_description),
+>>>>>>> plone5
             dict(name="twitter:url", content=item.link),
             dict(property="og:url", content=item.link),
         ])
@@ -86,7 +96,11 @@ class SocialTagsViewletCustom(TitleViewlet):
         context_uid = self.context.UID()
         has_media = False
         brain = uuidToCatalogBrain(context_uid)
+<<<<<<< HEAD
         if brain.leadMedia:
+=======
+        if getattr(brain, 'leadMedia', None):
+>>>>>>> plone5
             has_media = True
             media = uuidToCatalogBrain(brain.leadMedia)
 
@@ -111,18 +125,32 @@ class SocialTagsViewletCustom(TitleViewlet):
         elif has_media:
             if media != None:
                 file_url = media.getURL()
+<<<<<<< HEAD
                 image = media.getObject()
+=======
+                file_type = "image/jpeg"
+                """image = media.getObject()
+>>>>>>> plone5
                 image_file = getattr(image, 'image', None)
                 if image_file:
                     file_type = getattr(image, 'contentType', None)
                     if not file_type:
                         file_type = "image/jpeg"
+<<<<<<< HEAD
                 
                     self.tags.extend([
                         dict(name="twitter:image", content=file_url),
                         dict(property="og:image", content=file_url),
                         dict(property="og:image:type", content=file_type)
                     ])
+=======
+                """
+                self.tags.extend([
+                    dict(name="twitter:image", content=file_url),
+                    dict(property="og:image", content=file_url),
+                    dict(property="og:image:type", content=file_type)
+                ])
+>>>>>>> plone5
 
 
 

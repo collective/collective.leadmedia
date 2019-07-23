@@ -56,7 +56,6 @@
                                        item_sametime python: item_start == item_end;
                                        item_samedate python: (item_end - item_start &lt; 1) if item_type == 'Event' else False;
                                        item_has_leadmedia item/hasMedia;
-                                       item_object item/getObject;
                                        item_img python:view.getImageObject(item)"
                                        >
                     <metal:block define-slot="entry">
